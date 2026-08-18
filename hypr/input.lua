@@ -8,10 +8,14 @@
 --   ctrl | fn | alt (opt) | super (cmd) | espacio
 -- Ojo: NO usar altwin:swap_alt_win, que también intercambia el par derecho y
 -- rompería AltGr, imprescindible en el layout "es" para @ # ~ \ | [ ] { }.
--- Los otros dos valores son los defaults de Omarchy (compose en CapsLock).
+-- Omarchy trae ademas compose:caps por defecto, que convierte el Bloq Mayus en
+-- tecla Compose. Fuera: en layout "es" ya estan directas la n-tilde, los signos
+-- de apertura y el euro, asi que Compose solo costaba el Bloq Mayus.
+-- Se conserva shift:both_capslock_cancel, que es el default de Omarchy: los dos
+-- Shift a la vez siguen activando mayusculas.
 hl.config({
   input = {
-    kb_options = "compose:caps,shift:both_capslock_cancel,altwin:swap_lalt_lwin",
+    kb_options = "shift:both_capslock_cancel,altwin:swap_lalt_lwin",
   },
 })
 

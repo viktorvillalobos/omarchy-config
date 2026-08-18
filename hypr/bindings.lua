@@ -185,6 +185,11 @@ o.bind("ALT + L", "Lock system (tecla de lock del K950)", "omarchy-system-lock")
 -- y sus variantes, y SUPER + R lo ocupa el Cmd+R de la capa Mac.
 o.bind("SUPER + ALT + R", "Nombre e icono del workspace", "omarchy-shell jankeesvw.workspace-name toggle")
 
+-- Atajos creados desde el plugin de keybinds. Van en su propio fichero para
+-- que lo generado y lo escrito a mano nunca se pisen; pcall porque el fichero
+-- no existe hasta que guardes el primero, y su ausencia no debe romper nada.
+pcall(require, "hypr.bindings-custom")
+
 -- Opcionales ---------------------------------------------------------------
 -- Cmd+Tab hoy cambia de workspace (el modelo de Omarchy). Para que cicle
 -- ventanas como en Mac, descomentar estas dos líneas:
