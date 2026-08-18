@@ -1,0 +1,122 @@
+{
+  "version": 1,
+  "idle": {
+    "screensaver": 150,
+    "lock": 300
+  },
+  "bar": {
+    "position": "top",
+    "transparent": false,
+    "centerAnchor": "omarchy.clock",
+    "layout": {
+      "left": [
+        {
+          "id": "omarchy.menu"
+        },
+        {
+          "id": "viktorpy.workspaces",
+          "icons": {
+            "1": "",
+            "2": "",
+            "3": "",
+            "4": "󰙯",
+            "5": "",
+            "6": "",
+            "7": "",
+            "8": "",
+            "9": ""
+          },
+          "labels": {}
+        },
+        {
+          "id": "jankeesvw.workspace-name"
+        }
+      ],
+      "center": [
+        {
+          "id": "omarchy.indicators",
+          "alwaysShow": true
+        },
+        {
+          "id": "omarchy.clock",
+          "format": "dddd HH:mm",
+          "formatAlt": "d MMMM 'W'ww yyyy",
+          "verticalFormat": "HH\n—\nmm"
+        },
+        {
+          "id": "omarchy.keyboard-layout"
+        },
+        {
+          "id": "omarchy.weather"
+        },
+        {
+          "id": "omarchy.system-update"
+        }
+      ],
+      "right": [
+        {
+          "id": "cpu",
+          "type": "command",
+          "exec": "~/.config/omarchy/bar/scripts/cpu-usage",
+          "interval": 3,
+          "onClick": "omarchy-launch-or-focus-tui btop"
+        },
+        {
+          "id": "memory",
+          "type": "command",
+          "exec": "~/.config/omarchy/bar/scripts/mem-usage",
+          "interval": 5,
+          "onClick": "omarchy-launch-or-focus-tui btop"
+        },
+        {
+          "id": "network-io",
+          "type": "command",
+          "exec": "~/.config/omarchy/bar/scripts/net-usage",
+          "interval": 2,
+          "onClick": "omarchy-launch-or-focus-tui btop"
+        },
+        {
+          "id": "omarchy.tray",
+          "pinned": [
+            "chrome_status_icon_1",
+            "spotify-client",
+            "steam"
+          ],
+          "hidden": []
+        },
+        {
+          "id": "omarchy.tailscale"
+        },
+        {
+          "id": "omarchy.agents"
+        },
+        {
+          "id": "omarchy.bluetooth"
+        },
+        {
+          "id": "omarchy.network"
+        },
+        {
+          "id": "omarchy.audio"
+        },
+        {
+          "id": "omarchy.power"
+        },
+        {
+          "id": "omarchy.monitor"
+        }
+      ]
+    }
+  },
+  "plugins": [
+    {
+      "id": "viktorpy.background"
+    }
+  ],
+  "disabledPlugins": [
+    "omarchy.background"
+  ],
+  "cloneSourceRestores": [
+    "viktorpy.background"
+  ]
+}

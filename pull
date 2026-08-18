@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Copy the live config back into this repo, so `git diff` shows what changed.
+#
+# Run it after `omarchy update`: its migrations overwrite these files with
+# stock defaults, and this is how you see that happen instead of discovering
+# it when a shortcut stops working.
+set -euo pipefail
+
+here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+user=${OMARCHY_PLUGIN_USER:-$USER}
+
+for f in bindings input monitors; do cp -a "$HOME/.config/hypr/$f.lua" "$here/hypr/$f.lua"; done
+cp -a "$HOME/.config/omarchy/shell.json" "$here/omarchy/shell.json"
+cp -a "$HOME/.config/omarchy/shell.toml" "$here/omarchy/shell.toml"
+for s in cpu-usage mem-usage net-usage; do cp -a "$HOME/.config/omarchy/bar/scripts/$s" "$here/omarchy/bar/scripts/$s"; done
+for p in workspaces background; do
+  src="$HOME/.config/omarchy/plugins/$user.$p"
+  [[ -d $src ]] || continue
+  for f in "$src"/*; do cp -a "$f" "$here/omarchy/plugins/$p/$(basename "$f")"; done
+  sed -i "s/\"id\": \"$user\./\"id\": \"USER./" "$here/omarchy/plugins/$p/manifest.json"
+done
+cp -a "$HOME/.config/spotify-flags.conf" "$here/spotify-flags.conf"
+
+git -C "$here" --no-pager diff --stat

@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# Throughput de la interfaz por la que sale la ruta por defecto.
+# El delta se toma contra la invocación anterior, usando /proc/uptime como
+# reloj para no depender de que el `interval` del módulo sea exacto.
+
+state="${XDG_RUNTIME_DIR:-/tmp}/omarchy-bar-net.state"
+
+# Interfaz de la ruta por defecto (Destination == 00000000), sin subprocesos.
+iface=""
+while read -r name dest _; do
+  [[ $name == Iface ]] && continue
+  if [[ $dest == 00000000 ]]; then
+    iface=$name
+    break
+  fi
+done < /proc/net/route
+
+if [[ -z $iface ]]; then
+  printf '{"text":"\U000F0318 --","tooltip":"Sin conexión"}\n'
+  exit 0
+fi
+
+read -r rx < "/sys/class/net/$iface/statistics/rx_bytes"
+read -r tx < "/sys/class/net/$iface/statistics/tx_bytes"
+read -r now _ < /proc/uptime
+
+rx_rate=0
+tx_rate=0
+if [[ -r $state ]]; then
+  read -r prev_iface prev_now prev_rx prev_tx < "$state"
+  if [[ $prev_iface == "$iface" ]]; then
+    read -r rx_rate tx_rate < <(
+      awk -v t0="$prev_now" -v t1="$now" -v r0="$prev_rx" -v r1="$rx" -v x0="$prev_tx" -v x1="$tx" '
+        BEGIN {
+          dt = t1 - t0
+          if (dt <= 0 || r1 < r0 || x1 < x0) { print 0, 0; exit }
+          printf "%.0f %.0f\n", (r1 - r0) / dt, (x1 - x0) / dt
+        }'
+    )
+  fi
+fi
+printf '%s %s %s %s\n' "$iface" "$now" "$rx" "$tx" > "$state"
+
+human() {
+  awk -v b="$1" 'BEGIN {
+    if (b >= 1073741824) { printf "%.1fG", b / 1073741824 }
+    else if (b >= 1048576) { printf "%.1fM", b / 1048576 }
+    else if (b >= 1024)    { printf "%.0fk", b / 1024 }
+    else                   { printf "%dB", b }
+  }'
+}
+
+down=$(human "$rx_rate")
+up=$(human "$tx_rate")
+
+# Ancho fijo: si no, el módulo cambia de tamaño a cada muestra y empuja
+# a sus vecinos en la barra.
+printf '{"text":"\U000F0318 \U0000F063 %5s \U0000F062 %5s","tooltip":"%s  ·  ↓ %s/s  ↑ %s/s"}\n' \
+  "$down" "$up" "$iface" "$down" "$up"

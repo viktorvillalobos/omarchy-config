@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# Copy this repo's files into ~/.config, backing up whatever is there.
+#
+# Copies rather than symlinks on purpose. Omarchy's update migrations rewrite
+# config files in place, and `cp` through a symlink would write into the repo
+# instead — silently editing your history. With copies, `./pull` followed by
+# `git diff` is what tells you exactly what an update changed.
+set -euo pipefail
+
+here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+stamp=$(date +%s)
+user=${OMARCHY_PLUGIN_USER:-$USER}
+
+copy() {
+  local src=$1 dst=$2
+  mkdir -p "$(dirname "$dst")"
+  [[ -e $dst ]] && cp -a "$dst" "$dst.bak.$stamp"
+  cp -a "$src" "$dst"
+  printf '  %s\n' "${dst/#$HOME/\~}"
+}
+
+echo "Hyprland"
+for f in bindings input monitors; do copy "$here/hypr/$f.lua" "$HOME/.config/hypr/$f.lua"; done
+
+echo "Omarchy shell"
+copy "$here/omarchy/shell.json" "$HOME/.config/omarchy/shell.json"
+copy "$here/omarchy/shell.toml" "$HOME/.config/omarchy/shell.toml"
+
+echo "Bar metric scripts"
+for s in cpu-usage mem-usage net-usage; do
+  copy "$here/omarchy/bar/scripts/$s" "$HOME/.config/omarchy/bar/scripts/$s"
+  chmod +x "$HOME/.config/omarchy/bar/scripts/$s"
+done
+
+# The plugins are clones of built-in ones, and Omarchy names a clone after the
+# user running it. shell.json refers to them by that name, so the directory has
+# to match or the bar will not find them.
+echo "Shell plugins (as $user.*)"
+for p in workspaces background; do
+  dst="$HOME/.config/omarchy/plugins/$user.$p"
+  mkdir -p "$dst"
+  for f in "$here/omarchy/plugins/$p"/*; do copy "$f" "$dst/$(basename "$f")"; done
+  sed -i "s/\"id\": \"USER\./\"id\": \"$user./" "$dst/manifest.json"
+done
+
+echo "Misc"
+copy "$here/spotify-flags.conf" "$HOME/.config/spotify-flags.conf"
+
+cat <<EOF
+
+Done. Backups are alongside each file as *.bak.$stamp
+
+Next:
+  sed -i 's/viktorpy\./$user./g' ~/.config/omarchy/shell.json   # if your user differs
+  hyprctl reload
+  omarchy restart shell
+EOF

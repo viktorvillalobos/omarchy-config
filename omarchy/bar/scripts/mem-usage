@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# RAM en uso = MemTotal - MemAvailable (lo que de verdad está ocupado,
+# sin contar caché reclamable), en porcentaje y GiB.
+
+total_kb=0
+avail_kb=0
+swap_total_kb=0
+swap_free_kb=0
+
+while read -r key value _; do
+  case $key in
+    MemTotal:) total_kb=$value ;;
+    MemAvailable:) avail_kb=$value ;;
+    SwapTotal:) swap_total_kb=$value ;;
+    SwapFree:) swap_free_kb=$value ;;
+  esac
+done < /proc/meminfo
+
+((total_kb == 0)) && { printf '{"text":"\U0000E266 --"}\n'; exit 0; }
+
+used_kb=$((total_kb - avail_kb))
+pct=$(((used_kb * 100 + total_kb / 2) / total_kb))
+
+fmt_gib() { awk -v kb="$1" 'BEGIN { printf "%.1f", kb / 1048576 }'; }
+
+used_gib=$(fmt_gib "$used_kb")
+total_gib=$(fmt_gib "$total_kb")
+
+tooltip="RAM ${used_gib} / ${total_gib} GiB (${pct}%)"
+if ((swap_total_kb > 0)); then
+  swap_used_gib=$(fmt_gib $((swap_total_kb - swap_free_kb)))
+  swap_total_gib=$(fmt_gib "$swap_total_kb")
+  tooltip+="  ·  swap ${swap_used_gib} / ${swap_total_gib} GiB"
+fi
+
+printf '{"text":"\U0000E266 %3d%%","tooltip":"%s"}\n' "$pct" "$tooltip"

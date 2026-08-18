@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Uso de CPU desde la invocación anterior (el delta lo da el `interval` del módulo).
+# Guardar el contador previo evita tener que dormir dentro del script.
+
+state="${XDG_RUNTIME_DIR:-/tmp}/omarchy-bar-cpu.state"
+
+read -r _ user nice system idle iowait irq softirq steal _ < /proc/stat
+total=$((user + nice + system + idle + iowait + irq + softirq + steal))
+busy=$((total - idle - iowait))
+
+pct=0
+if [[ -r $state ]]; then
+  read -r prev_total prev_busy < "$state"
+  dt=$((total - prev_total))
+  db=$((busy - prev_busy))
+  ((dt > 0)) && pct=$(((db * 100 + dt / 2) / dt))
+fi
+printf '%s %s\n' "$total" "$busy" > "$state"
+
+((pct < 0)) && pct=0
+((pct > 100)) && pct=100
+
+read -r load1 load5 load15 _ < /proc/loadavg
+printf '{"text":"\U0000F4BC %3d%%","tooltip":"CPU %d%%  ·  load %s %s %s"}\n' \
+  "$pct" "$pct" "$load1" "$load5" "$load15"
