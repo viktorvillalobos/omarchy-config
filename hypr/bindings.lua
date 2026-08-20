@@ -108,6 +108,11 @@ hl.unbind("SUPER + T")
 mac_bind("SUPER + T", "Cmd+T: New tab", "T", new_terminal)
 o.bind("SUPER + ALT + T", "Toggle window floating/tiling", hl.dsp.window.float({ action = "toggle" }))
 
+-- Reabrir pestaña cerrada. Igual que el Redo: Shift explícito para que la app
+-- reciba Ctrl+Shift+T. En foot Ctrl+Shift+T no está bindeado, así que no hace
+-- falta excepción de terminal.
+o.bind("SUPER + SHIFT + T", "Cmd+Shift+T: Reopen closed tab", send_shortcut_once("CTRL SHIFT", "T"))
+
 -- SUPER+W era "Close window". En Mac, Cmd+W cierra pestaña y Cmd+Q cierra la
 -- app, así que la ventana se cierra ahora con Cmd+Q. En la terminal no hay
 -- pestañas: Cmd+W cierra la ventana, igual que en Terminal.app.
