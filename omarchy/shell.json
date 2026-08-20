@@ -50,10 +50,33 @@
           "id": "omarchy.weather"
         },
         {
+          "id": "io.github.sumdahl.media"
+        },
+        {
           "id": "omarchy.system-update"
         }
       ],
       "right": [
+        {
+          "id": "omarchy.tray",
+          "pinned": [
+            "chrome_status_icon_1",
+            "spotify-client",
+            "steam"
+          ],
+          "hidden": []
+        },
+        {
+          "id": "viktorvillalobos.opennaper"
+        },
+        {
+          "id": "omarchy.dropbox"
+        },
+        {
+          "id": "dev.zavu.inbox",
+          "notify": false,
+          "pollSeconds": 60
+        },
         {
           "id": "cpu",
           "type": "command",
@@ -74,15 +97,6 @@
           "exec": "~/.config/omarchy/bar/scripts/net-usage",
           "interval": 2,
           "onClick": "omarchy-launch-or-focus-tui btop"
-        },
-        {
-          "id": "omarchy.tray",
-          "pinned": [
-            "chrome_status_icon_1",
-            "spotify-client",
-            "steam"
-          ],
-          "hidden": []
         },
         {
           "id": "viktorvillalobos.keybinds"
